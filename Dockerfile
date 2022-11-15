@@ -31,14 +31,13 @@ USER libretranslate
 COPY --from=builder --chown=1032:1032 /app /app
 WORKDIR /app
 
-RUN if [ "$with_models" = "true" ]; then  \
+RUN  \
   # initialize the language models
   if [ ! -z "$models" ]; then \
   ./venv/bin/python install_models.py --load_only_lang_codes "$models";   \
   else \
   ./venv/bin/python install_models.py;  \
   fi \
-  fi
 
 EXPOSE 5000
 ENTRYPOINT [ "./venv/bin/libretranslate", "--host", "0.0.0.0" ]
