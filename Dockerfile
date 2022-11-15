@@ -21,7 +21,7 @@ RUN ./venv/bin/pip install . \
 
 FROM python:3.8.14-slim-bullseye
 
-ARG with_models=false
+ARG with_models=true
 ARG models=
 
 RUN addgroup --system --gid 1032 libretranslate && adduser --system --uid 1032 libretranslate
@@ -31,13 +31,14 @@ USER libretranslate
 COPY --from=builder --chown=1032:1032 /app /app
 WORKDIR /app
 
-RUN  \
+RUN if [ "$with_models" = "true" ]; then  \
   # initialize the language models
   if [ ! -z "$models" ]; then \
   ./venv/bin/python install_models.py --load_only_lang_codes "$models";   \
   else \
   ./venv/bin/python install_models.py;  \
   fi \
+  fi
 
 EXPOSE 5000
 ENTRYPOINT [ "./venv/bin/libretranslate", "--host", "0.0.0.0" ]
